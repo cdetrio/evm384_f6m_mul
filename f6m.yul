@@ -6,11 +6,13 @@
         mstore(add(dst, 32), lo)
     }
 
-    function mulNR2(x0, x1, r0, r1, modulus) {
+    function mulNR2(x0, x1, r0, r1, modulus, arena) {
+        let x0c := arena
+        memcpy_384(x0c, x0) // copy x0 to x0c
         // r0 <- x0 - x1
         submod384(r0, x0, x1, modulus)
         // r1 <- x0 + x1
-        addmod384(r1, x0, x1, modulus)
+        addmod384(r1, x0c, x1, modulus)
     }
 
     // r <- x + y
@@ -164,7 +166,7 @@
         f2m_sub(add(r, 128), add(r, 192), tmp1, add(tmp1, 64), add(r, 128), add(r, 192), modulus, arena)
 
         // tmp1 <- mulNonResidue(cC)
-        mulNR2(cC_0, cC_1, tmp1, add(tmp1, 64), modulus)
+        mulNR2(cC_0, cC_1, tmp1, add(tmp1, 64), modulus, arena)
 
         // r_1 <- r_1 + tmp1
         f2m_add(add(r, 128), add(r, 192), tmp1, add(tmp1, 64), add(r, 128), add(r, 192), modulus, arena)
@@ -194,7 +196,7 @@
         // ^ this line causes "stack too deep" error
 
         // r_0 <- mulNonResidue(r_0)
-        mulNR2(r, add(r, 64), r, add(r, 64), modulus)
+        mulNR2(r, add(r, 64), r, add(r, 64), modulus, arena)
 
         // r_0 <- aA + r_0
         f2m_add(r, add(r, 64), aA_0, aA_1, r, add(r, 64), modulus, arena)
@@ -205,7 +207,7 @@
             mstore(bls12_mod,          0xabaafffffffffeb9ffff53b1feffab1e24f6b0f6a0d23067bf1285f3844b7764)
             mstore(add(bls12_mod, 32), 0xd7ac4b43b6a71b4b9ae67f39ea11011a00000000000000000000000000000000)
 
-            let point1_a := add(bls12_mod, 96)
+            let point1_a := add(bls12_mod, 384)
 
             /*
             p1 bytecode
@@ -275,11 +277,16 @@
 
             //f6m_mul(a, A, r_0, bls12_mod, bls12_r_inv, add(bls12_mod, 128))
 
+            f6m_mul(point1_a, point2_A, f6m_result1, bls12_mod, bls12_r_inv, f6m_scratch_space)
+            return(f6m_result1, 64)
+
+
+            /*
             f6m_mul(point1_a, point2_A, f6m_result4, bls12_mod, bls12_r_inv, f6m_scratch_space)
             f6m_mul(point1_a, f6m_result4, f6m_result5, bls12_mod, bls12_r_inv, f6m_scratch_space)
 
             let i := 0
-            for {} lt(i, 135) {i := add(i, 1)} {            
+            for {} lt(i, 10) {i := add(i, 1)} {            
                 f6m_mul(f6m_result4, f6m_result5, f6m_result1, bls12_mod, bls12_r_inv, f6m_scratch_space)
                 f6m_mul(f6m_result5, f6m_result1, f6m_result2, bls12_mod, bls12_r_inv, f6m_scratch_space)
                 f6m_mul(f6m_result1, f6m_result2, f6m_result3, bls12_mod, bls12_r_inv, f6m_scratch_space)
@@ -294,6 +301,7 @@
             }
 
             return(f6m_result5, 64)
+            */
 
     }
 
