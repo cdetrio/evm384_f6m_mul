@@ -287,8 +287,10 @@
             let f6m_scratch_spaace := add(f6m_result5, 384)
 
             // just test one call
-            //f6m_mul(point1_a, point2_A, f6m_result1, bls12_mod, bls12_r_inv, f6m_scratch_spaace)
+            f6m_mul(point1_a, point2_A, f6m_result1, f6m_scratch_spaace)
+            return(f6m_result1, 64)
 
+            /*
             f6m_mul(point1_a, point2_A, f6m_result4, f6m_scratch_spaace)
             f6m_mul(point1_a, f6m_result4, f6m_result5, f6m_scratch_spaace)
 
@@ -308,6 +310,7 @@
             }
 
             return(f6m_result5, 64)
+            */
     }
 
 
